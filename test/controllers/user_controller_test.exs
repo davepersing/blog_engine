@@ -2,7 +2,8 @@ defmodule BlogEngine.UserControllerTest do
   use BlogEngine.ConnCase
 
   alias BlogEngine.User
-  @valid_attrs %{email: "some content", password_digest: "some content", username: "some content"}
+  @valid_create_attrs %{email: "test@test.com", username: "testuser", password: "test123", password_confirmation: "test123"}
+  @valid_attrs %{email: "test@test.com", username: "testuser"}
   @invalid_attrs %{}
 
   test "lists all entries on index", %{conn: conn} do
@@ -16,7 +17,7 @@ defmodule BlogEngine.UserControllerTest do
   end
 
   test "creates resource and redirects when data is valid", %{conn: conn} do
-    conn = post conn, user_path(conn, :create), user: @valid_attrs
+    conn = post conn, user_path(conn, :create), user: @valid_create_attrs
     assert redirected_to(conn) == user_path(conn, :index)
     assert Repo.get_by(User, @valid_attrs)
   end
@@ -46,7 +47,7 @@ defmodule BlogEngine.UserControllerTest do
 
   test "updates chosen resource and redirects when data is valid", %{conn: conn} do
     user = Repo.insert! %User{}
-    conn = put conn, user_path(conn, :update, user), user: @valid_attrs
+    conn = put conn, user_path(conn, :update, user), user: @valid_create_attrs
     assert redirected_to(conn) == user_path(conn, :show, user)
     assert Repo.get_by(User, @valid_attrs)
   end
