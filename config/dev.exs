@@ -36,7 +36,7 @@ config :phoenix, :stacktrace_depth, 20
 config :blog_engine, BlogEngine.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
-  password: "postgres",
+  password: "",
   database: "blog_engine_dev",
   hostname: "localhost",
   pool_size: 10
