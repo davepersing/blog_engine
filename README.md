@@ -1,5 +1,7 @@
 # BlogEngine
 
+Following the awesome tutorial from Brandon Richey here:  https://medium.com/@diamondgfx/writing-a-blog-engine-in-phoenix-and-elixir-part-7-adding-comments-support-7dfc17dd474e#.rbwpo317a
+
 To start your Phoenix app:
 
   * Install dependencies with `mix deps.get`
