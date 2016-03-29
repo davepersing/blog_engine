@@ -4,6 +4,10 @@ defmodule BlogEngine.User do
   import Comeonin.Bcrypt, only: [hashpwsalt: 1]
 
   schema "users" do
+    has_many :posts, BlogEngine.Post
+
+    belongs_to :role, BlogEngine.Role
+
     field :username, :string
     field :email, :string
     field :password_digest, :string
@@ -14,7 +18,7 @@ defmodule BlogEngine.User do
     field :password_confirmation, :string, virtual: true
   end
 
-  @required_fields ~w(username email password password_confirmation)
+  @required_fields ~w(username email password password_confirmation role_id)
   @optional_fields ~w()
 
   @doc """

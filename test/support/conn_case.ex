@@ -27,6 +27,8 @@ defmodule BlogEngine.ConnCase do
 
       import BlogEngine.Router.Helpers
 
+      alias BlogEngine.Factory
+
       # The default endpoint for testing
       @endpoint BlogEngine.Endpoint
     end

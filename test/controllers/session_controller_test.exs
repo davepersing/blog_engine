@@ -1,11 +1,13 @@
 defmodule BlogEngine.SessionControllerTest do
     use BlogEngine.ConnCase
+
     alias BlogEngine.User
+    alias BlogEngine.Repo
+    alias BlogEngine.TestHelper
 
     setup do
-        User.changeset(%User{}, %{username: "test", password: "test123", password_confirmation: "test123", email: "test@test.com"})
-        |> Repo.insert
-
+        {:ok, role} = TestHelper.create_role(%{name: "User", admin: false})
+        {:ok, _user} = TestHelper.create_user(role, %{username: "test", password: "test", password_confirmation: "test", email: "test@test.com"})
         conn = conn()
         {:ok, conn: conn}
     end
@@ -16,7 +18,7 @@ defmodule BlogEngine.SessionControllerTest do
     end
 
     test "creates a new user session for a valid user", %{conn: conn} do
-        conn = post conn, session_path(conn, :create), user: %{username: "test", password: "test123"}
+        conn = post conn, session_path(conn, :create), user: %{username: "test", password: "test"}
         assert get_session(conn, :current_user)
         assert get_flash(conn, :info) == "Sign in successful!"
         assert redirected_to(conn) == page_path(conn, :index)
