@@ -17,9 +17,8 @@
 <div class="comments">
   <h2>Comments</h2>
   <%= for comment <- @post.comments do %>
-    <%= render BlogEngine.CommentView, "comment.html", comment: comment %>
+    <%= render BlogEngine.CommentView, "comment.html", comment: comment, author_or_admin: @conn.assigns[:author_or_admin], conn: @conn, post: @post %>
   <% end %>
-  <h2>New Comment</h2>
   <%= render BlogEngine.CommentView, "form.html", changeset: @comment_changeset, action: post_comment_path(@conn, :create, @post) %>
 </div>
 
