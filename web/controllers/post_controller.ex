@@ -3,6 +3,7 @@ defmodule BlogEngine.PostController do
 
   alias BlogEngine.Post
 
+  plug :set_authorization_flag
   plug :authorize_user when action in [:new, :create, :update, :edit, :delete]
   plug :scrub_params, "post" when action in [:create, :update]
   plug :assign_user
@@ -99,9 +100,13 @@ defmodule BlogEngine.PostController do
     |> halt
   end
 
-  defp authorize_user(conn, _opts) do
+  defp is_authorized_user?(conn) do
     user = get_session(conn, :current_user)
-    if user && Integer.to_string(user.id) == conn.params["user_id"] || BlogEngine.RoleChecker.is_admin?(user) do
+    (user && (Integer.to_string(user.id) == conn.params["user_id"] || BlogEngine.RoleChecker.is_admin?(user)))
+  end
+
+  defp authorize_user(conn, _opts) do
+    if is_authorized_user?(conn) do
       conn
     else
       conn
@@ -109,6 +114,10 @@ defmodule BlogEngine.PostController do
       |> redirect(to: page_path(conn, :index))
       |> halt
     end
+  end
+
+  defp set_authorization_flag(conn, _opts) do
+    assign(conn, :author_or_admin, is_authorized_user?(conn))
   end
 
 end
