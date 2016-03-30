@@ -4,6 +4,7 @@ defmodule BlogEngine.Factory do
     alias BlogEngine.Role
     alias BlogEngine.User
     alias BlogEngine.Post
+    alias BlogEngine.Comment
 
     def factory(:role) do
         %Role{
@@ -28,6 +29,15 @@ defmodule BlogEngine.Factory do
             title: "Some Post",
             body: "And the body of some post",
             user: build(:user)
+        }
+    end
+
+    def factory(:comment) do
+        %Comment{
+            author: "Test User",
+            body: "This is a sample comment",
+            approved: false,
+            post: build(:post)
         }
     end
 end

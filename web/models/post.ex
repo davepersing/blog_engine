@@ -3,6 +3,7 @@ defmodule BlogEngine.Post do
 
   schema "posts" do
     belongs_to :user, BlogEngine.User
+    has_many :comments, BlogEngine.Comment
 
     field :title, :string
     field :body, :string

@@ -39,7 +39,13 @@ defmodule BlogEngine.PostController do
 
   def show(conn, %{"id" => id}) do
     post = Repo.get!(assoc(conn.assigns[:user], :posts), id)
-    render(conn, "show.html", post: post)
+      |> Repo.preload(:comments)
+
+    comment_changeset = post
+      |> build_assoc(:comments)
+      |> BlogEngine.Comment.changeset
+
+    render(conn, "show.html", post: post, comment_changeset: comment_changeset)
   end
 
   def edit(conn, %{"id" => id}) do
