@@ -14,7 +14,6 @@ defmodule BlogEngine.CommentChannel do
   def handle_in("CREATED_COMMENT", payload, socket) do
     case CommentHelper.create(payload, socket) do
       {:ok, comment} ->
-        IO.puts "CREATED_COMMENT: #{inspect comment}"
         broadcast socket, "CREATED_COMMENT", Map.merge(payload, %{insertedAt: comment.inserted_at, commentId: comment.id, approved: comment.approved})
         {:noreply, socket}
       {:error, _} ->
@@ -25,12 +24,10 @@ defmodule BlogEngine.CommentChannel do
   def handle_in("APPROVED_COMMENT", payload, socket) do
     case CommentHelper.approve(payload, socket) do
       {:ok, comment} ->
-        IO.puts "Approved comment: #{inspect payload}"
-        payload = Map.merge(payload, %{insertedAt: comment.inserted_at, commentId: comment.id})
+        payload = Map.merge(payload, %{insertedAt: comment.inserted_at, commentId: comment.id, approved: comment.approved})
         broadcast socket, "APPROVED_COMMENT", payload
         {:noreply, socket}
       {:error, _} ->
-        IO.puts "Error approving comment"
         {:noreply, socket}
     end
   end
@@ -55,14 +52,6 @@ defmodule BlogEngine.CommentChannel do
   # broadcast to everyone in the current topic (comments:lobby).
   def handle_in("shout", payload, socket) do
     broadcast socket, "shout", payload
-    {:noreply, socket}
-  end
-
-  # This is invoked every time a notification is being broadcast
-  # to the client. The default implementation is just to push it
-  # downstream but one could filter or change the event.
-  def handle_out(event, payload, socket) do
-    push socket, event, payload
     {:noreply, socket}
   end
 
