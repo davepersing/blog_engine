@@ -1,5 +1,5 @@
 <h2>Show post</h2>
-
+<input type="hidden" id="post-id" value="<%= @post.id %>">
 <ul>
 
   <li>
@@ -19,8 +19,8 @@
   <%= for comment <- @post.comments do %>
     <%= render BlogEngine.CommentView, "comment.html", comment: comment, author_or_admin: @conn.assigns[:author_or_admin], conn: @conn, post: @post %>
   <% end %>
-  <%= render BlogEngine.CommentView, "form.html", changeset: @comment_changeset, action: post_comment_path(@conn, :create, @post) %>
 </div>
+<%= render BlogEngine.CommentView, "form.html", changeset: @comment_changeset, action: post_comment_path(@conn, :create, @post) %>
 
 <%= link "Edit", to: user_post_path(@conn, :edit, @user, @post) %>
 <%= link "Back", to: user_post_path(@conn, :index, @user) %>
