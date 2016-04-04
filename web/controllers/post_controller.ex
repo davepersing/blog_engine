@@ -3,28 +3,38 @@ defmodule BlogEngine.PostController do
 
   alias BlogEngine.Post
 
-  plug :set_authorization_flag
-  plug :authorize_user when action in [:new, :create, :update, :edit, :delete]
   plug :scrub_params, "post" when action in [:create, :update]
-  plug :assign_user
+  plug :assign_user when not action in [:index]
+  plug :authorize_user when action in [:new, :create, :update, :edit, :delete]
+  plug :set_authorization_flag when action in [:show]
+
+  def index(conn, %{"user_id" => _user_id}) do
+    conn = assign_user(conn, nil)
+    if conn.assigns[:user] do
+      posts = Repo.all(assoc(conn.assigns[:user], :posts)) |> Repo.preload(:user)
+      render(conn, "index.html", posts: posts)
+    else
+      conn
+    end
+  end
 
   def index(conn, _params) do
-    posts = Repo.all(assoc(conn.assigns[:user], :posts))
+    posts = Repo.all(from p in Post,
+                      limit: 5,
+                      order_by: [desc: :inserted_at],
+                      preload: [:user])
     render(conn, "index.html", posts: posts)
   end
 
   def new(conn, _params) do
-    changeset =
-      conn.assigns[:user]
+    changeset = conn.assigns[:user]
       |> build_assoc(:posts)
       |> Post.changeset
-
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"post" => post_params}) do
-    changeset =
-      conn.assigns[:user]
+    changeset = conn.assigns[:user]
       |> build_assoc(:posts)
       |> Post.changeset(post_params)
 
@@ -38,7 +48,7 @@ defmodule BlogEngine.PostController do
     end
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"id" => id, "user_id" => _user_id}) do
     post = Repo.get!(assoc(conn.assigns[:user], :posts), id)
       |> Repo.preload(:comments)
 
@@ -84,12 +94,12 @@ defmodule BlogEngine.PostController do
   defp assign_user(conn, _opts) do
     case conn.params do
       %{"user_id" => user_id} ->
-        case user = Repo.get(BlogEngine.User, user_id) do
+        case Repo.get(BlogEngine.User, user_id) do
           nil -> invalid_user(conn)
           user -> assign(conn, :user, user)
         end
       _ ->
-        conn
+        invalid_user(conn)
     end
   end
 
@@ -98,11 +108,6 @@ defmodule BlogEngine.PostController do
     |> put_flash(:error, "Invalid user!")
     |> redirect(to: page_path(conn, :index))
     |> halt
-  end
-
-  defp is_authorized_user?(conn) do
-    user = get_session(conn, :current_user)
-    (user && (Integer.to_string(user.id) == conn.params["user_id"] || BlogEngine.RoleChecker.is_admin?(user)))
   end
 
   defp authorize_user(conn, _opts) do
@@ -120,4 +125,8 @@ defmodule BlogEngine.PostController do
     assign(conn, :author_or_admin, is_authorized_user?(conn))
   end
 
+  defp is_authorized_user?(conn) do
+    user = get_session(conn, :current_user)
+    (user && (Integer.to_string(user.id) == conn.params["user_id"] || BlogEngine.RoleChecker.is_admin?(user)))
+  end
 end
